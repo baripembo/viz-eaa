@@ -38,8 +38,8 @@ function createHeatMap(categories, dataArray) {
         margin = {top: 50, right: 20, bottom: 20, left: 110};
         
     let width = 550 - margin.right - margin.left,
-        height = (total*itemHeight) - margin.top - margin.bottom;
-
+        height = (total*itemHeight);
+        
     let data = dataArray.map(function(item) {
         let newItem = {};
         newItem.country = item.country;
@@ -118,7 +118,10 @@ function createHeatMap(categories, dataArray) {
             return cls; 
         })
         .text(function(d){ 
-            let t = (d.dataset.length>0) ? d.dataset.length + ' datasets' : '';
+            let t = '';
+            if (d.dataset.length>0) {
+               t = (d.dataset.length>1) ? d.dataset.length + ' datasets' : d.dataset.length + ' dataset';
+            }
             return t; 
         });
 
@@ -184,9 +187,9 @@ $.when(dataCall).then(function(dataArgs){
     let headerArray = [];
 
     let cf = crossfilter(data);
-    total = cf.size();
     var countryDimension = cf.dimension(function(d) { return d['#country']; });
     let countries = countryDimension.group().all();
+    total = countries.length;
 
     //consolidate duplicate country rows
     let newCountryArray = [];
@@ -224,19 +227,6 @@ $.when(dataCall).then(function(dataArgs){
             dataArray.push({'country':d[0]['#country'], 'indicator':indicatorKeys[k], 'value':indicatorObject[indicatorKeys[k]]});
         }
     });
-
-    // data.forEach(function(d, i){
-    //     let country = d['#country'];
-    //     if (country!=undefined) {
-    //         countryDimension.filter(function(d) { return d===country; }); 
-    //         console.log(country, countryDimension.top(Infinity));
-    //         let keys = Object.keys(d);
-    //         //skip columns A and B in dataset (country and hdx page)
-    //         for (let i=2; i<keys.length; i++){
-    //           dataArray.push({'country':d['#country'], 'indicator':keys[i], 'value':d[keys[i]]});
-    //         }
-    //     }
-    // });
 
     //get headers
     for (let j=2; j<dataArgs[0].length; j++) {
