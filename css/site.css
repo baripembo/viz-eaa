@@ -1,0 +1,47 @@
+body, h1, h2, h3, h4, h5, h6 {
+	font-family: 'Source Sans Pro', sans-serif;
+}
+h1, h2, h3, h4, h5, h6 {
+	font-weight: 700;
+}
+h1 {
+	font-size: 28px;
+}
+h2 {
+	font-size: 24px;
+}
+h5 {
+	font-weight: 400;
+	margin-top: 0;
+	text-transform: uppercase;
+}
+h6 {
+	margin-bottom: 0;
+}
+.viz-container {
+    width: 1170px;
+    padding: 20px 0;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.axis path {
+	display: none;
+}
+
+rect {
+	rx: 5px;
+	ry: 5px;
+}
+
+text {
+	font-size: 13px;
+}
+
+.cell {
+	cursor: pointer;
+}
+
+.cell:hover {
+	fill-opacity: 0.5;
+}
