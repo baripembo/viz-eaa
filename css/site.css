@@ -25,23 +25,42 @@ h6 {
     margin-left: auto;
 }
 
+.heatmap {
+	display: inline-block;
+}
+.legend {
+	display: inline-block;
+	margin-top: 25px;
+	vertical-align: top;
+}
+.legend .block {
+	background-color: #f3f3f3;
+	border-radius: 5px;
+	font-size: 10px;
+	height: 46px;
+	line-height: 46px;
+	margin: 4px 2px 0;
+	text-align: center;
+	width: 80px;
+}
+.legend .block.data {
+	background-color: #1bb580;
+	color: #fff;
+}
+
 .axis path {
 	display: none;
 }
-
 rect {
 	rx: 5px;
 	ry: 5px;
 }
-
 text {
 	font-size: 13px;
 }
-
 .cell {
 	cursor: pointer;
 }
-
 .cell:hover {
 	fill-opacity: 0.5;
 }
