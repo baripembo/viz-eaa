@@ -36,7 +36,7 @@ h6 {
 .legend .block {
 	background-color: #f3f3f3;
 	border-radius: 5px;
-	font-size: 10px;
+	font-size: 11px;
 	height: 46px;
 	line-height: 46px;
 	margin: 4px 2px 0;
@@ -60,7 +60,22 @@ text {
 }
 .cell {
 	cursor: pointer;
+	text-align: center;
+}
+.cell-text {
+	cursor: pointer;
+	fill: #fff;
+	font-size: 12px;
+	text-decoration: underline;
 }
 .cell:hover {
 	fill-opacity: 0.5;
+}
+.d3-tip {
+    padding: 10px 15px;
+    background-color:white;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    font-size:1em;
 }

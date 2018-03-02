@@ -1,4 +1,4 @@
-let dataURL = 'https://data.humdata.org/hxlproxy/data.json?tagger-match-all=on&tagger-01-header=country&tagger-01-tag=%23country&tagger-03-header=open%2Fclosed%2Faffected+facilities&tagger-03-tag=%23open%2Bclosed%2Baffected%2Bfacilities&tagger-04-header=crisis+impacts&tagger-04-tag=%23crisis%2Bimpacts&tagger-05-header=response+monitoring+and+impacts&tagger-05-tag=%23response%2Bmonitoring%2Bimpacts&tagger-06-header=security+incidents&tagger-06-tag=%23security%2Bincidents&tagger-07-header=facility+and+program+status&tagger-07-tag=%23facility%2Bprogram%2Bstatus&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1LG0luRT45he4plKVe3Zn4Rq5x0jXPTAP-t6ZIM6Qx_g%2Fedit%23gid%3D860850203&header-row=1';//'https://data.humdata.org/hxlproxy/data.json?filter01=add&add-tag01=%23indicator%2Blocation&add-value01=urban&filter02=append&force=on&tagger-match-all=on&tagger-01-header=country&tagger-01-tag=%23country&tagger-03-header=impacts+of+crisis+on+students&tagger-03-tag=%23impact%2Bcrisis%2Bstudents&tagger-04-header=impacts+of+crisis+on+facilities&tagger-04-tag=%23impact%2Bcrisis%2Bfacilities&tagger-05-header=impacts+of+crisis+on+educators&tagger-05-tag=%23impact%2Bcrisis%2Beducators&tagger-06-header=status+of+students&tagger-06-tag=%23status%2Bstudents&tagger-07-header=status+of+facilities&tagger-07-tag=%23status%2Bfacilities&tagger-08-header=status+of+educators&tagger-08-tag=%23status%2Beducators&header-row=1&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D860850203';
+let dataURL = 'https://data.humdata.org/hxlproxy/data.json?tagger-match-all=on&tagger-01-header=country&tagger-01-tag=%23country&tagger-03-header=open%2Fclosed%2Faffected+facilities&tagger-03-tag=%23open%2Bclosed%2Baffected%2Bfacilities&tagger-04-header=crisis+impacts&tagger-04-tag=%23crisis%2Bimpacts&tagger-05-header=response+monitoring+and+impacts&tagger-05-tag=%23response%2Bmonitoring%2Bimpacts&tagger-06-header=security+incidents&tagger-06-tag=%23security%2Bincidents&tagger-07-header=facility+and+program+status&tagger-07-tag=%23facility%2Bprogram%2Bstatus&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1LG0luRT45he4plKVe3Zn4Rq5x0jXPTAP-t6ZIM6Qx_g%2Fedit%23gid%3D860850203&header-row=1';
 
 function hxlProxyToJSON(input){
     let output = [];
@@ -53,6 +53,14 @@ function createHeatMap(categories, dataArray) {
         return newItem;
     })
 
+    var tip = d3.tip().attr('class', 'd3-tip').html(function(d) { 
+        var links = '';
+        d.dataset.forEach(function(link, index) {
+            links += '<a href='+link+' target="_blank">Dataset ' + (index+1) + '</a><br>';
+        });
+        return links; 
+    });
+
     let x_elements = d3.set(data.map(function( item ) { return item.indicator; } )).values(),
         y_elements = d3.set(data.map(function( item ) { return item.country; } )).values();
 
@@ -89,13 +97,30 @@ function createHeatMap(categories, dataArray) {
 
     let cells = svg.selectAll('rect')
         .data(data)
-        .enter().append('g').append('rect')
-        .attr('class', 'cell')
+        .enter().append('g');
+
+    cells.append('rect')
         .attr('width', cellWidth)
         .attr('height', cellHeight)
+        .attr('class', function(d) { return (d.value==0 ? 'cell' : 'cell'); })
         .attr('y', function(d) { return yScale(d.country); })
         .attr('x', function(d) { return xScale(d.indicator); })
-        .attr('fill', function(d) { return colorRange[d.value]; });
+        .attr('fill', function(d) { return colorRange[d.value]; })
+    
+    cells.append('text')
+        .attr('y', function(d) { return yScale(d.country); })
+        .attr('x', function(d) { return xScale(d.indicator); })
+        .attr('transform', function (d) {
+            return 'translate(12, 26)';
+        })
+        .attr('class', function(d) { 
+            let cls = (d.dataset.length>0) ? 'cell-text cell-data' : 'cell-text';
+            return cls; 
+        })
+        .text(function(d){ 
+            let t = (d.dataset.length>0) ? d.dataset.length + ' datasets' : '';
+            return t; 
+        });
 
     svg.append('g')
         .attr('class', 'y axis')
@@ -114,6 +139,11 @@ function createHeatMap(categories, dataArray) {
         .style('text-anchor', 'middle')
         .attr('y', '-40')
         .call(wrap, xScale.rangeBand());
+
+
+    d3.selectAll('.cell-data').call(tip);
+    d3.selectAll('.cell-data').on('mouseover', tip.show);//.on('mouseleave', tip.hide);
+    d3.selectAll('.cell').on('mouseover', tip.hide);
 }
 
 //helper function to wrap svg text
@@ -178,8 +208,13 @@ $.when(dataCall).then(function(dataArgs){
             let keys = Object.keys(d[i]);
             //skip columns A and B in dataset (country and hdx page)
             for (let j=2; j<keys.length; j++){
-                if (indicatorObject[keys[j]]==undefined) indicatorObject[keys[j]] = [];
-                indicatorObject[keys[j]].push(d[i][keys[j]]);
+                if (d[i][keys[j]]!='') {
+                    if (indicatorObject[keys[j]]==undefined) indicatorObject[keys[j]] = [];
+                    indicatorObject[keys[j]].push(d[i][keys[j]]);
+                }
+                else {
+                    indicatorObject[keys[j]] = [];
+                }
             }
         }
 
