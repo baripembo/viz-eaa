@@ -39,7 +39,7 @@ function createHeatMap(categories, dataArray) {
         
     let width = 550 - margin.right - margin.left,
         height = (total*itemHeight);
-        
+
     let data = dataArray.map(function(item) {
         let newItem = {};
         newItem.country = item.country;
@@ -111,7 +111,7 @@ function createHeatMap(categories, dataArray) {
         .attr('y', function(d) { return yScale(d.country); })
         .attr('x', function(d) { return xScale(d.indicator); })
         .attr('transform', function (d) {
-            return 'translate(12, 26)';
+            return 'translate(14, 26)';
         })
         .attr('class', function(d) { 
             let cls = (d.dataset.length>0) ? 'cell-text cell-data' : 'cell-text';
@@ -145,7 +145,7 @@ function createHeatMap(categories, dataArray) {
 
 
     d3.selectAll('.cell-data').call(tip);
-    d3.selectAll('.cell-data').on('mouseover', tip.show);//.on('mouseleave', tip.hide);
+    d3.selectAll('.cell-data').on('mouseover', tip.show);
     d3.selectAll('.cell').on('mouseover', tip.hide);
 }
 
@@ -187,7 +187,7 @@ $.when(dataCall).then(function(dataArgs){
     let headerArray = [];
 
     let cf = crossfilter(data);
-    var countryDimension = cf.dimension(function(d) { return d['#country']; });
+    let countryDimension = cf.dimension(function(d) { return d['#country']; });
     let countries = countryDimension.group().all();
     total = countries.length;
 
@@ -206,7 +206,7 @@ $.when(dataCall).then(function(dataArgs){
     //consolidate indicators for duplicate countries
     newCountryArray.forEach(function(d, i){
         let country = d[0]['#country'];
-        var indicatorObject = {};
+        let indicatorObject = {};
         for (let i=0; i<d.length; i++){
             let keys = Object.keys(d[i]);
             //skip columns A and B in dataset (country and hdx page)
