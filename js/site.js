@@ -1,4 +1,4 @@
-let dataURL = 'https://data.humdata.org/hxlproxy/data.json?tagger-match-all=on&tagger-01-header=country&tagger-01-tag=%23country&tagger-03-header=open%2Fclosed%2Faffected+facilities&tagger-03-tag=%23open%2Bclosed%2Baffected%2Bfacilities&tagger-04-header=crisis+impacts&tagger-04-tag=%23crisis%2Bimpacts&tagger-05-header=response+monitoring+and+impacts&tagger-05-tag=%23response%2Bmonitoring%2Bimpacts&tagger-06-header=security+incidents&tagger-06-tag=%23security%2Bincidents&tagger-07-header=facility+and+program+status&tagger-07-tag=%23facility%2Bprogram%2Bstatus&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1LG0luRT45he4plKVe3Zn4Rq5x0jXPTAP-t6ZIM6Qx_g%2Fedit%23gid%3D860850203&header-row=1';
+let dataURL = 'https://proxy.hxlstandard.org/data.json?force=on&tagger-match-all=on&tagger-01-header=country&tagger-01-tag=%23country&tagger-04-header=osm+or+related+source&tagger-04-tag=%23facility%2Bosm%2Brelatedsource&tagger-05-header=authoritative+source&tagger-05-tag=%23facility%2Bauthoritativesource&tagger-06-header=national&tagger-06-tag=%23development%2Bnational&tagger-07-header=sub-national&tagger-07-tag=%23development%2Bsubnational&tagger-08-header=national&tagger-08-tag=%23crisis%2Bnational&tagger-09-header=sub-national&tagger-09-tag=%23crisis%2Bsubnational&header-row=2&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D785052774';//https://data.humdata.org/hxlproxy/data.json?tagger-match-all=on&tagger-01-header=country&tagger-01-tag=%23country&tagger-03-header=open%2Fclosed%2Faffected+facilities&tagger-03-tag=%23open%2Bclosed%2Baffected%2Bfacilities&tagger-04-header=crisis+impacts&tagger-04-tag=%23crisis%2Bimpacts&tagger-05-header=response+monitoring+and+impacts&tagger-05-tag=%23response%2Bmonitoring%2Bimpacts&tagger-06-header=security+incidents&tagger-06-tag=%23security%2Bincidents&tagger-07-header=facility+and+program+status&tagger-07-tag=%23facility%2Bprogram%2Bstatus&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1LG0luRT45he4plKVe3Zn4Rq5x0jXPTAP-t6ZIM6Qx_g%2Fedit%23gid%3D860850203&header-row=1';
 
 function hxlProxyToJSON(input){
     let output = [];
@@ -31,30 +31,30 @@ function hxlProxyToJSON(input){
 
 
 function createHeatMap(categories, dataArray) {
-    let itemWidth = 80,
-        itemHeight = 46,
+    let itemWidth = 100,
+        itemHeight = 40,
         cellWidth = itemWidth - 2,
         cellHeight = itemHeight - 2,
-        margin = {top: 50, right: 20, bottom: 20, left: 110};
+        margin = {top: 50, right: 20, bottom: 20, left: 150};
         
-    let width = 550 - margin.right - margin.left,
+    let width = 575 - margin.right - margin.left,
         height = (total*itemHeight);
 
     let data = dataArray.map(function(item) {
         let newItem = {};
-        newItem.country = item.country;
-        newItem.indicator = item.indicator;
         let hasData = false;
         item.value.forEach(function(val) {
             hasData = (val=='') ? false : true;
         });
+        newItem.country = item.country;
+        newItem.indicator = item.indicator;
         newItem.value = (hasData) ? 1 : 0;
         newItem.dataset = item.value;
         return newItem;
     })
 
-    var tip = d3.tip().attr('class', 'd3-tip').html(function(d) { 
-        var links = '';
+    let tip = d3.tip().attr('class', 'd3-tip').html(function(d) { 
+        let links = '';
         d.dataset.forEach(function(link, index) {
             links += '<a href='+link+' target="_blank">Dataset ' + (index+1) + '</a><br>';
         });
@@ -64,16 +64,20 @@ function createHeatMap(categories, dataArray) {
     let x_elements = d3.set(data.map(function( item ) { return item.indicator; } )).values(),
         y_elements = d3.set(data.map(function( item ) { return item.country; } )).values();
 
+    // let xScale = d3.scale.ordinal()
+    //     .domain(x_elements)
+    //     .rangeBands([0, x_elements.length * itemWidth]);
+
     let xScale = d3.scale.ordinal()
         .domain(x_elements)
-        .rangeBands([0, x_elements.length * itemWidth]);
+        .range([0, 100, 215, 315]);
 
     let xAxis = d3.svg.axis()
+        .orient('top')
         .scale(xScale)
         .tickFormat(function (d, i) {
             return categories[i];
-        })
-        .orient('top');
+        });
 
     let yScale = d3.scale.ordinal()
         .domain(y_elements)
@@ -110,9 +114,7 @@ function createHeatMap(categories, dataArray) {
     cells.append('text')
         .attr('y', function(d) { return yScale(d.country); })
         .attr('x', function(d) { return xScale(d.indicator); })
-        .attr('transform', function (d) {
-            return 'translate(14, 26)';
-        })
+        .attr('transform', 'translate(24, 22)')
         .attr('class', function(d) { 
             let cls = (d.dataset.length>0) ? 'cell-text cell-data' : 'cell-text';
             return cls; 
@@ -129,19 +131,18 @@ function createHeatMap(categories, dataArray) {
         .attr('class', 'y axis')
         .call(yAxis)
         .selectAll('text')
-        .attr('transform', function (d) {
-            return 'translate(-10, 0)';
-        })
-        .call(wrap, 100);
+        .attr('transform', 'translate(-10, 0)')
+        .call(wrap, 115);
 
     svg.append('g')
         .attr('class', 'x axis')
         .call(xAxis)
         .selectAll('text')
-        .attr('font-weight', '700')
+        .attr('transform', 'translate(50, 0)')
+        //.attr('font-weight', '700')
         .style('text-anchor', 'middle')
-        .attr('y', '-40')
-        .call(wrap, xScale.rangeBand());
+        .attr('y', '-25')
+        .call(wrap, itemWidth);
 
 
     d3.selectAll('.cell-data').call(tip);
@@ -182,6 +183,7 @@ let dataCall = $.ajax({
 
 let total = 0;
 $.when(dataCall).then(function(dataArgs){
+    console.log(dataArgs);
     let data = hxlProxyToJSON(dataArgs);
     let dataArray = [];
     let headerArray = [];
@@ -224,16 +226,14 @@ $.when(dataCall).then(function(dataArgs){
         //format data for heatmap
         let indicatorKeys = Object.keys(indicatorObject);
         for (let k=0; k<indicatorKeys.length; k++){
+            //console.log(d[0]['#country'], indicatorKeys[k], indicatorObject[indicatorKeys[k]]);
             dataArray.push({'country':d[0]['#country'], 'indicator':indicatorKeys[k], 'value':indicatorObject[indicatorKeys[k]]});
         }
     });
 
     //get headers
-    for (let j=2; j<dataArgs[0].length; j++) {
+    for (let j=3; j<dataArgs[0].length; j++) {
         let header = dataArgs[0][j];
-        if (header.indexOf('Open/Closed/Affected')>-1) {
-            header = 'Open / Closed / Affected Facilities';
-        }
         headerArray.push(header);
     }
 
