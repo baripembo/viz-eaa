@@ -1,4 +1,5 @@
-let dataURL = 'https://proxy.hxlstandard.org/data.json?url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D785052774';
+let dataURL = 'https://proxy.hxlstandard.org/data.json?force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D607057075';
+let categoryURL = 'https://proxy.hxlstandard.org/data.json?strip-headers=on&force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D1825036435';
 
 function hxlProxyToJSON(input){
     let output = [];
@@ -29,13 +30,24 @@ function hxlProxyToJSON(input){
     return output;
 }
 
+function getDatasets(str) {
+    //parse string for number and names of datasets
+    let datasetString = String(str).split('name:');
+    datasetString = (datasetString[1]!==undefined) ? datasetString[1].replace(/[()]/g, '') : '';
+    let datasetArray = (datasetString!=='') ? datasetString.split('%20OR%20') : [];
+    return datasetArray;
+}
 
-function createHeatMap(categories, dataArray) {
+function formatName(name) {
+    return name.replace(/_|-/g, ' ');
+}
+
+function createHeatMap(dataArray) {
     let itemWidth = 100,
-        itemHeight = 40,
+        itemHeight = 34,
         cellWidth = itemWidth - 2,
         cellHeight = itemHeight - 2,
-        margin = {top: 50, right: 20, bottom: 20, left: 150};
+        margin = {top: 5, right: 20, bottom: 20, left: 150};
         
     let width = 790 - margin.right - margin.left,
         height = (countryTotal*itemHeight);
@@ -55,31 +67,31 @@ function createHeatMap(categories, dataArray) {
 
     let tip = d3.tip()
         .attr('class', 'd3-tip')
-        .offset([10, 0])
+        .offset([0, 0])
         .html(function(d) { 
-            let links = '';
-            d.dataset.forEach(function(link, index) {
-                links += '<a href='+link+' target="_blank">Dataset ' + (index+1) + '</a><br>';
+            let links = '<ul>';
+            let datasetArray = getDatasets(d.dataset);
+            datasetArray.forEach(function(link, index) {
+                let dataURL = 'https://data.humdata.org/search?q=name:('+link+')';
+                links += '<li><a href='+dataURL+' target="_blank">' + (index+1) + '. ' + formatName(link) + '</a></li>';
             });
+            if (datasetArray.length>1) links += '<li><a href='+d.dataset+' target="_blank">See all</a></li>';
+            links += '</ul>';
             return links; 
-    });
+        });
 
     let x_elements = d3.set(data.map(function( item ) { return item.indicator; } )).values(),
         y_elements = d3.set(data.map(function( item ) { return item.country; } )).values();
 
-    // let xScale = d3.scale.ordinal()
-    //     .domain(x_elements)
-    //     .rangeBands([0, x_elements.length * itemWidth]);
-
     let xScale = d3.scale.ordinal()
         .domain(x_elements)
-        .range([0, 100, 215, 315, 430, 530]);
+        .range([0, 215, 315, 430, 530]);
 
     let xAxis = d3.svg.axis()
         .orient('top')
         .scale(xScale)
         .tickFormat(function (d, i) {
-            return categories[i];
+            return '';//subcategories[i];
         });
 
     let yScale = d3.scale.ordinal()
@@ -107,7 +119,7 @@ function createHeatMap(categories, dataArray) {
         .enter().append('g');
 
     cells.append('rect')
-        .attr('width', cellWidth)
+        .attr('width', function(d) { return (d.indicator==='#loc+education+url') ? cellWidth*2 : cellWidth; })
         .attr('height', cellHeight)
         .attr('class', 'cell')
         .attr('y', function(d) { return yScale(d.country); })
@@ -117,15 +129,18 @@ function createHeatMap(categories, dataArray) {
     cells.append('text')
         .attr('y', function(d) { return yScale(d.country); })
         .attr('x', function(d) { return xScale(d.indicator); })
-        .attr('transform', 'translate(24, 22)')
+        .attr('transform', function(d) {
+            return (d.indicator==='#loc+education+url') ? 'translate(73, 20)' : 'translate(23, 20)';
+        })
         .attr('class', function(d) { 
             let cls = (d.dataset.length>0) ? 'cell-text cell-data' : 'cell-text';
             return cls; 
         })
         .text(function(d){ 
+            let datasetArray = getDatasets(d.dataset);
             let t = '';
-            if (d.dataset.length>0) {
-               t = (d.dataset.length>1) ? d.dataset.length + ' datasets' : d.dataset.length + ' dataset';
+            if (datasetArray.length>0) {
+               t = (datasetArray.length>1) ? datasetArray.length + ' datasets' : datasetArray.length + ' dataset';
             }
             return t; 
         });
@@ -158,7 +173,30 @@ function createHeatMap(categories, dataArray) {
     d3.selectAll('.cell-data').call(tip);
     d3.selectAll('.cell-data').on('mouseover', tip.show);
     d3.selectAll('.cell').on('mouseover', tip.hide);
+    d3.selectAll('.d3-tip').on('mouseleave', tip.hide);
+}
 
+function createCategories(categories) {
+    let catObj = {};
+    for (let i=0; i<categories.length; i++) {
+        let catKeys = Object.keys(categories[i]);
+        for (let j=0; j<catKeys.length; j++) {
+            if (categories[i][catKeys[j]]!=='') {
+                if (i===0) {
+                    $('.categoryLabels').append('<div>'+categories[i][catKeys[j]]+'</div>');
+                }
+                if (i===1) {
+                    $('.categoryStats').append('<div><span>'+categories[i][catKeys[j]]+'</span> datasets <span class="pipe">|</span> <span>'+categories[i+1][catKeys[j]]+'</span> sources</div>');
+                }
+                if (i===3) {
+                    $('.categorySublabel').append('<div>'+categories[i][catKeys[j]]+'</div>');
+                }
+                if (i===4) {
+                    $('.categoryDescription').append('<div>'+categories[i][catKeys[j]]+'</div>');
+                }
+            }
+        }
+    }
 }
 
 //helper function to wrap svg text
@@ -192,14 +230,23 @@ let dataCall = $.ajax({
     dataType: 'json',
 });
 
-let countryTotal = 0;
-$.when(dataCall).then(function(dataArgs){
-    // get first row of data for headers
-    let headers = dataArgs.shift();
+let categoryCall = $.ajax({ 
+    type: 'GET', 
+    url: categoryURL,
+    dataType: 'json',
+});
 
-    let data = hxlProxyToJSON(dataArgs);
+let countryTotal = 0;
+$.when(dataCall, categoryCall).then(function(dataArgs, categoryArgs){
+    let categories = hxlProxyToJSON(categoryArgs[0]);
+    createCategories(categories);
+
+    // get first row of data for headers
+    let headers = dataArgs[0].shift();
+
+    let data = hxlProxyToJSON(dataArgs[0]);
     let dataArray = [];
-    let headerArray = [];
+    //let headerArray = [];
     let columnIndex = 3; //skip columns A and B in dataset (country iso and hdx page)
 
     let cf = crossfilter(data);
@@ -242,12 +289,12 @@ $.when(dataCall).then(function(dataArgs){
     });
 
     //get headers
-    for (let k=columnIndex; k<headers.length; k++) {
-        headerArray.push(headers[k]);
-    }
+    // for (let k=columnIndex; k<headers.length; k++) {
+    //     headerArray.push(headers[k]);
+    // }
 
     //remove loader
     $('.sp-circle').remove();
     $('.viz-container').show();
-    createHeatMap(headerArray, dataArray);
+    createHeatMap(dataArray);
 });
