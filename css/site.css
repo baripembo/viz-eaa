@@ -25,31 +25,70 @@ h6 {
     padding: 20px 0;
     width: 1170px;
 }
-.categoryLabels {
+.categoryLabels,
+.categoryStats {
 	display: flex;
-	margin-left: 150px;
+	margin: 0 0 5px 150px;
+}
+.categorySublabel,
+.categoryDescription {
+	display: flex;
+	margin: 0 0 5px 365px;
+}
+.categoryLabels div,
+.categoryStats div {
+	margin-right: 15px;
+	text-align: center;
+	width: 200px;
+}
+.categorySublabel div,
+.categoryDescription div {
+	font-size: 12px;
+	margin-right: 2px;
+	text-align: center;
+	width: 98px;
+}
+.categorySublabel div:nth-child(2),
+.categoryDescription div:nth-child(2) {
+	margin-right: 17px;
+}
+.categoryDescription div {
+	color: #999;
 }
 .categoryLabels div {
 	font-size: 16px;
 	font-weight: 700;
-	margin-right: 15px;
-	text-align: center;
-	width: 200px;
+	text-transform: capitalize;
+}
+.categoryStats div {
+	color: #1bb580;
+}
+.categoryStats div span {
+	font-size: 30px;
+}
+.categoryStats .pipe {
+	color: #000;
+	font-size: 14px;
+	padding: 0 5px;
 }
 .heatmap {
 	display: inline-block;
 }
 .legend {
 	display: inline-block;
-	margin-top: 25px;
+	margin-top: -22px;
 	vertical-align: top;
+}
+.legend label {
+	color: #999;
+	font-size: 12px;
+	font-weight: 400;
+	margin-bottom: 6px;
 }
 .legend .block {
 	background-color: #f3f3f3;
-	border-radius: 5px;
 	font-size: 11px;
-	height: 38px;
-	line-height: 38px;
+	line-height: 31px;
 	margin: 4px 2px 0;
 	text-align: center;
 	width: 100px;
@@ -62,12 +101,8 @@ h6 {
 .axis path {
 	display: none;
 }
-rect {
-	rx: 5px;
-	ry: 5px;
-}
 text {
-	font-size: 13px;
+	font-size: 12px;
 	text-transform: capitalize;
 }
 .cell {
@@ -91,4 +126,32 @@ text {
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
     font-size: 1em;
+}
+.d3-tip ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+.d3-tip li {
+	margin-bottom: 2px;
+}
+.d3-tip li:last-child {
+	margin-top: 4px;
+}
+.d3-tip a {
+	text-transform: capitalize;
+}
+.d3-tip:after {
+	top: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-color: rgba(255, 255, 255, 0);
+	border-top-color: #ffffff;
+	border-width: 8px;
+	margin-left: -8px;
 }
