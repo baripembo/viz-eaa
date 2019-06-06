@@ -1,17 +1,17 @@
-let dataURL = 'https://proxy.hxlstandard.org/data.json?force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D607057075';
-let categoryURL = 'https://proxy.hxlstandard.org/data.json?strip-headers=on&force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D1825036435';
+let dataURL = 'https://proxy.hxlstandard.org/data.json?force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D1850060283';
+let categoryURL = 'https://proxy.hxlstandard.org/data.json?strip-headers=on&force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D531837332';
 
 function hxlProxyToJSON(input){
-    let output = [];
-    let keys = [];
+    var output = [];
+    var keys = [];
 
     input.forEach(function(e,i){
         if(i==0){
             e.forEach(function(e2,i2){
-                let parts = e2.split('+');
-                let key = parts[0]
+                var parts = e2.split('+');
+                var key = parts[0]
                 if(parts.length>1){
-                    let atts = parts.splice(1,parts.length);
+                    var atts = parts.splice(1,parts.length);
                     atts.sort();                    
                     atts.forEach(function(att){
                         key +='+'+att
@@ -20,7 +20,7 @@ function hxlProxyToJSON(input){
                 keys.push(key);
             });
         } else {
-            let row = {};
+            var row = {};
             e.forEach(function(e2,i2){
                 row[keys[i2]] = e2;
             });
@@ -32,9 +32,9 @@ function hxlProxyToJSON(input){
 
 function getDatasets(str) {
     //parse string for number and names of datasets
-    let datasetString = String(str).split('name:');
+    var datasetString = String(str).split('name:');
     datasetString = (datasetString[1]!==undefined) ? datasetString[1].replace(/[()]/g, '') : '';
-    let datasetArray = (datasetString!=='') ? datasetString.split('%20OR%20') : [];
+    var datasetArray = (datasetString!=='') ? datasetString.split('%20OR%20') : [];
     return datasetArray;
 }
 
@@ -43,18 +43,18 @@ function formatName(name) {
 }
 
 function createHeatMap(dataArray) {
-    let itemWidth = 100,
+    var itemWidth = 100,
         itemHeight = 34,
         cellWidth = itemWidth - 2,
         cellHeight = itemHeight - 2,
         margin = {top: 5, right: 20, bottom: 20, left: 150};
         
-    let width = 790 - margin.right - margin.left,
+    var width = 790 - margin.right - margin.left,
         height = (countryTotal*itemHeight);
 
-    let data = dataArray.map(function(item) {
-        let newItem = {};
-        let hasData = false;
+    var data = dataArray.map(function(item) {
+        var newItem = {};
+        var hasData = false;
         item.value.forEach(function(val) {
             hasData = (val=='') ? false : true;
         });
@@ -65,14 +65,14 @@ function createHeatMap(dataArray) {
         return newItem;
     })
 
-    let tip = d3.tip()
+    var tip = d3.tip()
         .attr('class', 'd3-tip')
         .offset([0, 0])
         .html(function(d) { 
-            let links = '<ul>';
-            let datasetArray = getDatasets(d.dataset);
+            var links = '<ul>';
+            var datasetArray = getDatasets(d.dataset);
             datasetArray.forEach(function(link, index) {
-                let dataURL = 'https://data.humdata.org/search?q=name:('+link+')';
+                var dataURL = 'https://data.humdata.org/search?q=name:('+link+')';
                 links += '<li><a href='+dataURL+' target="_blank">' + (index+1) + '. ' + formatName(link) + '</a></li>';
             });
             if (datasetArray.length>1) links += '<li><a href='+d.dataset+' target="_blank">See all</a></li>';
@@ -80,41 +80,41 @@ function createHeatMap(dataArray) {
             return links; 
         });
 
-    let x_elements = d3.set(data.map(function( item ) { return item.indicator; } )).values(),
+    var x_elements = d3.set(data.map(function( item ) { return item.indicator; } )).values(),
         y_elements = d3.set(data.map(function( item ) { return item.country; } )).values();
 
-    let xScale = d3.scale.ordinal()
+    var xScale = d3.scale.ordinal()
         .domain(x_elements)
         .range([0, 215, 315, 430, 530]);
 
-    let xAxis = d3.svg.axis()
+    var xAxis = d3.svg.axis()
         .orient('top')
         .scale(xScale)
         .tickFormat(function (d, i) {
             return '';//subcategories[i];
         });
 
-    let yScale = d3.scale.ordinal()
+    var yScale = d3.scale.ordinal()
         .domain(y_elements)
         .rangeBands([0, y_elements.length * itemHeight]);
 
-    let yAxis = d3.svg.axis()
+    var yAxis = d3.svg.axis()
         .scale(yScale)
         .tickFormat(function (d) {
             return d;
         })
         .orient('left');
 
-    let colorRange = ['#f3f3f3', '#1bb580'];
+    var colorRange = ['#f3f3f3', '#1bb580'];
 
-    let svg = d3.select('.heatmap')
+    var svg = d3.select('.heatmap')
         .append('svg')
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .append('g')
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-    let cells = svg.selectAll('rect')
+    var cells = svg.selectAll('rect')
         .data(data)
         .enter().append('g');
 
@@ -133,12 +133,12 @@ function createHeatMap(dataArray) {
             return (d.indicator==='#loc+education+url') ? 'translate(73, 20)' : 'translate(23, 20)';
         })
         .attr('class', function(d) { 
-            let cls = (d.dataset.length>0) ? 'cell-text cell-data' : 'cell-text';
+            var cls = (d.dataset.length>0) ? 'cell-text cell-data' : 'cell-text';
             return cls; 
         })
         .text(function(d){ 
-            let datasetArray = getDatasets(d.dataset);
-            let t = '';
+            var datasetArray = getDatasets(d.dataset);
+            var t = '';
             if (datasetArray.length>0) {
                t = (datasetArray.length>1) ? datasetArray.length + ' datasets' : datasetArray.length + ' dataset';
             }
@@ -177,10 +177,10 @@ function createHeatMap(dataArray) {
 }
 
 function createCategories(categories) {
-    let catObj = {};
-    for (let i=0; i<categories.length; i++) {
-        let catKeys = Object.keys(categories[i]);
-        for (let j=0; j<catKeys.length; j++) {
+    var catObj = {};
+    for (var i=0; i<categories.length; i++) {
+        var catKeys = Object.keys(categories[i]);
+        for (var j=0; j<catKeys.length; j++) {
             if (categories[i][catKeys[j]]!=='') {
                 if (i===0) {
                     $('.categoryLabels').append('<div>'+categories[i][catKeys[j]]+'</div>');
@@ -224,56 +224,56 @@ function wrap(text, width) {
   });
 }
 
-let dataCall = $.ajax({ 
+var dataCall = $.ajax({ 
     type: 'GET', 
     url: dataURL,
     dataType: 'json',
 });
 
-let categoryCall = $.ajax({ 
+var categoryCall = $.ajax({ 
     type: 'GET', 
     url: categoryURL,
     dataType: 'json',
 });
 
-let countryTotal = 0;
+var countryTotal = 0;
 $.when(dataCall, categoryCall).then(function(dataArgs, categoryArgs){
-    let categories = hxlProxyToJSON(categoryArgs[0]);
+    var categories = hxlProxyToJSON(categoryArgs[0]);
     createCategories(categories);
 
     // get first row of data for headers
-    let headers = dataArgs[0].shift();
+    var headers = dataArgs[0].shift();
 
-    let data = hxlProxyToJSON(dataArgs[0]);
-    let dataArray = [];
-    //let headerArray = [];
-    let columnIndex = 3; //skip columns A and B in dataset (country iso and hdx page)
+    var data = hxlProxyToJSON(dataArgs[0]);
+    var dataArray = [];
+    //var headerArray = [];
+    var columnIndex = 3; //skip columns A and B in dataset (country iso and hdx page)
 
-    let cf = crossfilter(data);
-    let countryDimension = cf.dimension(function(d) { return d['#country+name']; });
-    let countries = countryDimension.group().all();
+    var cf = crossfilter(data);
+    var countryDimension = cf.dimension(function(d) { return d['#country+name']; });
+    var countries = countryDimension.group().all();
     countryTotal = countries.length;
 
     //consolidate duplicate country rows
-    let newCountryArray = [];
+    var newCountryArray = [];
     countries.forEach(function(country) {
         countryDimension.filter(function(d) { return d===country.key; });
-        let dim = countryDimension.top(Infinity);
-        let arr = [];
-        for (let i=0; i<dim.length; i++){
-            arr.push(dim[i]);
+        var dim = countryDimension.top(Infinity);
+        var arr = [];
+        for (var l=0; l<dim.length; l++){
+            arr.push(dim[l]);
         }
         newCountryArray.push(arr);
     });
 
     //consolidate indicators for duplicate countries
     newCountryArray.forEach(function(d, i){
-        let country = d[0]['#country+name'];
-        let indicatorObject = {};
-        for (let i=0; i<d.length; i++){
-            let keys = Object.keys(d[i]);
+        var country = d[0]['#country+name'];
+        var indicatorObject = {};
+        for (var i=0; i<d.length; i++){
+            var keys = Object.keys(d[i]);
             //skip columns A and B in dataset (country iso and hdx page)
-            for (let j=columnIndex; j<keys.length; j++){
+            for (var j=columnIndex; j<keys.length; j++){
                 if (indicatorObject[keys[j]]==undefined) indicatorObject[keys[j]] = [];
                 if (d[i][keys[j]]!='') {
                     indicatorObject[keys[j]].push(d[i][keys[j]]);
@@ -282,14 +282,14 @@ $.when(dataCall, categoryCall).then(function(dataArgs, categoryArgs){
         }
         
         //format data for heatmap
-        let indicatorKeys = Object.keys(indicatorObject);
-        for (let k=0; k<indicatorKeys.length; k++){
+        var indicatorKeys = Object.keys(indicatorObject);
+        for (var k=0; k<indicatorKeys.length; k++){
             dataArray.push({'country':d[0]['#country+name'], 'indicator':indicatorKeys[k], 'value':indicatorObject[indicatorKeys[k]]});
         }
     });
 
     //get headers
-    // for (let k=columnIndex; k<headers.length; k++) {
+    // for (var k=columnIndex; k<headers.length; k++) {
     //     headerArray.push(headers[k]);
     // }
 
