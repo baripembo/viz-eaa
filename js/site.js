@@ -1,5 +1,5 @@
-let dataURL = 'https://proxy.hxlstandard.org/data.json?force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D607057075';
-let categoryURL = 'https://proxy.hxlstandard.org/data.json?strip-headers=on&force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D1825036435';
+let dataURL = 'https://proxy.hxlstandard.org/data.json?force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D1850060283';
+let categoryURL = 'https://proxy.hxlstandard.org/data.json?strip-headers=on&force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D531837332';
 
 function hxlProxyToJSON(input){
     let output = [];
