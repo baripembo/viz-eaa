@@ -1,5 +1,5 @@
-let dataURL = 'https://proxy.hxlstandard.org/data.json?force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D1850060283';
-let categoryURL = 'https://proxy.hxlstandard.org/data.json?strip-headers=on&force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D531837332';
+var dataURL = 'https://proxy.hxlstandard.org/data.json?force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D1850060283';
+var categoryURL = 'https://proxy.hxlstandard.org/data.json?strip-headers=on&force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1qoA7nu9fl9Bmhvw_S0lqlAC04staw-k8xuSm1s9dP9o%2Fedit%23gid%3D531837332';
 
 function hxlProxyToJSON(input){
     var output = [];
@@ -47,9 +47,9 @@ function createHeatMap(dataArray) {
         itemHeight = 34,
         cellWidth = itemWidth - 2,
         cellHeight = itemHeight - 2,
-        margin = {top: 5, right: 20, bottom: 20, left: 150};
+        margin = {top: 5, right: 0, bottom: 20, left: 120};
         
-    var width = 790 - margin.right - margin.left,
+    var width = 750 - margin.right - margin.left,
         height = (countryTotal*itemHeight);
 
     var data = dataArray.map(function(item) {
@@ -68,15 +68,25 @@ function createHeatMap(dataArray) {
     var tip = d3.tip()
         .attr('class', 'd3-tip')
         .offset([0, 0])
-        .html(function(d) { 
-            var links = '<ul>';
+        .direction(function(d,i) {
+            var dir = 'e';
+            if (d.indicator==='#output+crisis+data+subnational+url') {
+                dir = 'w';
+                $('.d3-tip').addClass('left');
+            }
+            else {
+                $('.d3-tip').removeClass('left');
+            }
+            return dir;
+        })
+        .html(function(d, i) { 
+            var links = '<ol>';
             var datasetArray = getDatasets(d.dataset);
             datasetArray.forEach(function(link, index) {
                 var dataURL = 'https://data.humdata.org/search?q=name:('+link+')';
-                links += '<li><a href='+dataURL+' target="_blank">' + (index+1) + '. ' + formatName(link) + '</a></li>';
+                links += '<li><a href='+dataURL+' target="_blank">' + formatName(link) + '</a></li>';
             });
-            if (datasetArray.length>1) links += '<li><a href='+d.dataset+' target="_blank">See all</a></li>';
-            links += '</ul>';
+            if (datasetArray.length>1) links += '</ol><a href='+d.dataset+' target="_blank">See all</a>';
             return links; 
         });
 
